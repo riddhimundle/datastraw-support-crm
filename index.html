@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ResolveDesk — Support CRM</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .brand span {
+            color: #6366f1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 17px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .primary:hover {
+            background: #4338ca;
+        }
+
+        .filters {
+            background: white;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 11px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #6366f1;
+        }
+
+        .search {
+            flex: 1;
+        }
+
+        .status-filter {
+            width: 180px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        th {
+            color: #6b7280;
+            font-size: 13px;
+            background: #fafafa;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+        .ticket-row {
+        cursor: pointer;
+        transition: background 0.15s ease;
+        }
+        .ticket-row:hover {
+        background: #f5f7ff;
+        }
+
+        .ticket-link {
+            color: #4f46e5;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #6b7280;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 14px;
+            max-width: 650px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            background: #f3f4f6;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .detail {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .notes {
+            margin-top: 20px;
+        }
+
+        .note {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 700px) {
+            header {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px 12px;
+            }
+
+            .top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .status-filter {
+                width: 100%;
+            }
+
+            .card {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 700px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">Resolve<span>Desk</span></div>
+    <div>Support CRM</div>
+</header>
+
+<div class="container">
+
+    <div class="top">
+        <div>
+            <h1>Support Tickets</h1>
+            <p class="subtitle">Manage customer issues and support requests.</p>
+        </div>
+
+        <button class="primary" onclick="openCreateModal()">
+            + New Ticket
+        </button>
+    </div>
+
+    <div class="filters">
+
+        <input
+            class="search"
+            id="search"
+            placeholder="Search tickets, customers, emails..."
+            oninput="loadTickets()"
+        >
+
+        <select
+            class="status-filter"
+            id="status"
+            onchange="loadTickets()"
+        >
+            <option value="All">All Statuses</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Closed">Closed</option>
+        </select>
+
+    </div>
+
+    <div class="card">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>Customer</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody id="ticketList"></tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- CREATE TICKET MODAL -->
+
+<div class="modal" id="createModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Create Ticket</h2>
+            <button class="close" onclick="closeCreateModal()">✕</button>
+        </div>
+
+        <div class="field">
+            <label>Customer Name</label>
+            <input id="customerName">
+        </div>
+
+        <div class="field">
+            <label>Email</label>
+            <input id="customerEmail" type="email">
+        </div>
+
+        <div class="field">
+            <label>Issue Title</label>
+            <input id="subject">
+        </div>
+
+        <div class="field">
+            <label>Description</label>
+            <textarea id="description"></textarea>
+        </div>
+
+        <div class="form-actions">
+
+            <button onclick="closeCreateModal()">
+                Cancel
+            </button>
+
+            <button class="primary" onclick="createTicket()">
+                Create Ticket
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- DETAIL MODAL -->
+
+<div class="modal" id="detailModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2 id="detailTitle">Ticket</h2>
+            <button class="close" onclick="closeDetailModal()">✕</button>
+        </div>
+
+        <div id="ticketDetails"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+async function loadTickets() {
+
+    const search = document.getElementById("search").value;
+    const status = document.getElementById("status").value;
+
+    let url = `/api/tickets?search=${encodeURIComponent(search)}&status=${encodeURIComponent(status)}`;
+
+    const response = await fetch(url);
+
+    const tickets = await response.json();
+
+    const list = document.getElementById("ticketList");
+
+    if (tickets.length === 0) {
+
+        list.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    No tickets found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    list.innerHTML = tickets.map(ticket => `
+
+        <tr
+    class="ticket-row"
+    onclick="viewTicket('${ticket.ticket_id}')"
+>
+
+    <td>
+        <span class="ticket-link">
+            ${ticket.ticket_id}
+        </span>
+    </td>
+
+    <td>${escapeHtml(ticket.customer_name)}</td>
+
+    <td>${escapeHtml(ticket.subject)}</td>
+
+    <td>
+        <span class="badge">
+            ${ticket.status}
+        </span>
+    </td>
+
+    <td>
+        ${new Date(ticket.created_at).toLocaleDateString()}
+    </td>
+
+</tr>
+
+    `).join("");
+}
+
+
+async function createTicket() {
+
+    const data = {
+
+        customer_name:
+            document.getElementById("customerName").value,
+
+        customer_email:
+            document.getElementById("customerEmail").value,
+
+        subject:
+            document.getElementById("subject").value,
+
+        description:
+            document.getElementById("description").value
+
+    };
+
+    if (!data.customer_name ||
+        !data.customer_email ||
+        !data.subject ||
+        !data.description) {
+
+        alert("Please fill all fields.");
+        return;
+    }
+
+    const response = await fetch("/api/tickets", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(data)
+
+    });
+
+    if (!response.ok) {
+
+        alert("Could not create ticket.");
+        return;
+
+    }
+
+    const result = await response.json();
+
+    alert(`Ticket ${result.ticket_id} created successfully!`);
+
+    closeCreateModal();
+
+    document.getElementById("customerName").value = "";
+    document.getElementById("customerEmail").value = "";
+    document.getElementById("subject").value = "";
+    document.getElementById("description").value = "";
+
+    loadTickets();
+}
+
+
+async function viewTicket(ticketId) {
+
+    const response =
+        await fetch(`/api/tickets/${ticketId}`);
+
+    const ticket = await response.json();
+
+    document.getElementById("detailTitle").innerText =
+        ticket.ticket_id;
+
+    const notes = ticket.notes.length
+        ? ticket.notes.map(note => `
+            <div class="note">
+                ${escapeHtml(note.note_text)}
+                <br>
+                <small>
+                    ${new Date(note.created_at).toLocaleString()}
+                </small>
+            </div>
+        `).join("")
+        : "<p>No notes yet.</p>";
+
+    document.getElementById("ticketDetails").innerHTML = `
+
+        <div class="detail">
+
+            <strong>Customer</strong>
+            <p>${escapeHtml(ticket.customer_name)}</p>
+
+        </div>
+
+        <div class="detail">
+
+            <strong>Email</strong>
+            <p>${escapeHtml(ticket.customer_email)}</p>
+
+        </div>
+
+        <div class="detail">
+
+            <strong>Subject</strong>
+            <p>${escapeHtml(ticket.subject)}</p>
+
+        </div>
+
+        <div class="detail">
+
+            <strong>Description</strong>
+            <p>${escapeHtml(ticket.description)}</p>
+
+        </div>
+
+        <div class="field">
+
+            <label>Status</label>
+
+            <select id="updateStatus">
+
+                <option ${ticket.status === "Open" ? "selected" : ""}>
+                    Open
+                </option>
+
+                <option ${ticket.status === "In Progress" ? "selected" : ""}>
+                    In Progress
+                </option>
+
+                <option ${ticket.status === "Closed" ? "selected" : ""}>
+                    Closed
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="field">
+
+            <label>Add Note</label>
+
+            <textarea
+                id="newNote"
+                placeholder="Add an internal support note..."
+            ></textarea>
+
+        </div>
+
+        <button
+            class="primary"
+            onclick="updateTicket('${ticket.ticket_id}')"
+        >
+            Save Changes
+        </button>
+
+        <div class="notes">
+
+            <h3>Notes</h3>
+
+            ${notes}
+
+        </div>
+    `;
+
+    document.getElementById("detailModal").style.display = "flex";
+}
+
+
+async function updateTicket(ticketId) {
+
+    const status =
+        document.getElementById("updateStatus").value;
+
+    const notes =
+        document.getElementById("newNote").value;
+
+    const response = await fetch(
+        `/api/tickets/${ticketId}`,
+        {
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                status,
+                notes
+            })
+        }
+    );
+
+    if (!response.ok) {
+
+        alert("Could not update ticket.");
+        return;
+
+    }
+
+    alert("Ticket updated successfully.");
+
+    closeDetailModal();
+
+    loadTickets();
+}
+
+
+function openCreateModal() {
+    document.getElementById("createModal").style.display = "flex";
+}
+
+
+function closeCreateModal() {
+    document.getElementById("createModal").style.display = "none";
+}
+
+
+function closeDetailModal() {
+    document.getElementById("detailModal").style.display = "none";
+}
+
+
+function escapeHtml(text) {
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+
+loadTickets();
+
+</script>
+
+</body>
+</html>
